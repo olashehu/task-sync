@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 import * as dotenv from 'dotenv';
-import * as path from 'path';
-import { UsersModule } from './user/user.module';
+import { User } from './entities/user.entity';
 
 dotenv.config();
 
@@ -11,11 +12,11 @@ dotenv.config();
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      logging: true,
-      entities: [path.join(__dirname, '**', '*.model.{js,ts}')],
+      entities: [User],
       synchronize: true,
     }),
     UsersModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],

@@ -1,29 +1,28 @@
-// entities/teams.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  //   OneToMany,
-  //   ManyToOne,
-  //   ManyToMany,
-  //   JoinTable,
 } from 'typeorm';
+import { UserRole } from '../enum';
 
-@Entity('teams')
-export class Teams {
+@Entity('users')
+export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ nullable: false })
   name: string;
 
-  @Column()
-  createdBy: string; // Foreign key to Users.id
+  @Column({ unique: true })
+  email: string;
 
-  //   @ManyToOne(() => Users, (user) => user.createdTeams)
-  //   creator: Users;
+  @Column()
+  passwordHash: string;
+
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.MEMBER })
+  role: UserRole;
 
   @CreateDateColumn()
   createdAt: Date;
