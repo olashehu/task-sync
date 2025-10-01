@@ -1,10 +1,11 @@
-// dto/invite-member.dto.ts
-import { IsUUID } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
-export class InviteMemberDto {
-  // @IsUUID()
-  // userId?: string;
+export class InviteByIdentifierDto {
+  @IsString()
+  @IsNotEmpty()
+  identifier: string; // email or username
 
-  @IsUUID()
+  @IsString()
+  @IsNotEmpty()
   teamId: string;
 }

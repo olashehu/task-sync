@@ -7,11 +7,12 @@ import {
   Put,
   Param,
   Delete,
+  Get,
 } from '@nestjs/common';
 import { TeamsService } from './teams.service';
 import { Teams } from 'src/entities/teams.entity';
 import { AuthGuard } from 'src/auth/auth.guard';
-import { InviteMemberDto } from 'src/dto/invite-member.dto';
+import { InviteByIdentifierDto } from 'src/dto/invite-member.dto';
 
 @Controller('teams')
 export class TeamsController {
@@ -48,13 +49,31 @@ export class TeamsController {
     return await this.teamsService.deleteTeam(teamId, userId);
   }
 
-  @UseGuards(AuthGuard)
   @Post('invite')
-  async invite(
-    @Body() dto: InviteMemberDto,
+  async invite(@Body() dto: InviteByIdentifierDto) {
+    return await this.teamsService.inviteByIdentifier(
+      dto.identifier,
+      dto.teamId,
+    );
+  }
+
+  @UseGuards(AuthGuard)
+  @Post(':inviteId')
+  async acceptInvite(
+    @Request() req: { user: { sub: string } },
+    @Param('inviteId') inviteId: string,
+  ) {
+    const userId = req.user.sub;
+    return await this.teamsService.acceptInvite(inviteId, userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get(':teamId')
+  async getTeamUsers(
+    @Param('teamId') teamId: string,
     @Request() req: { user: { sub: string } },
   ) {
     const userId = req.user.sub;
-    return await this.teamsService.inviteMember(dto, userId);
+    return await this.teamsService.getTeamWithUsers(teamId, userId);
   }
 }
