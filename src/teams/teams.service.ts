@@ -259,4 +259,63 @@ export class TeamsService {
       throw new Error('Could not fetch team with users');
     }
   }
+
+  async removeMember(
+    teamId: string,
+    userId: string,
+    requesterId: string,
+  ): Promise<{ message: string }> {
+    try {
+      //First check if the team exist
+      const team = await this.teamsRepo.findOne({
+        where: { id: teamId },
+        relations: ['members'],
+      });
+      if (!team) {
+        throw new NotFoundException('Team not found');
+      }
+
+      //Check if the requester is a member and admin
+      const requesterMembership = team.members.find(
+        (member) => member.userId === requesterId,
+      );
+      if (!requesterMembership || requesterMembership.role !== UserRole.ADMIN) {
+        throw new ForbiddenException(
+          'You are not authorized to remove members from this team',
+        );
+      }
+
+      // Check if the user to be removed is a member of the team
+      const memberToRemove = team.members.find(
+        (member) => member.userId === userId,
+      );
+      if (!memberToRemove) {
+        throw new NotFoundException('User is not a member of the team');
+      }
+
+      // Prevent removing the last admin
+      if (memberToRemove.role === UserRole.ADMIN) {
+        const adminCount = team.members.filter(
+          (member) => member.role === UserRole.ADMIN,
+        ).length;
+        if (adminCount <= 1) {
+          throw new ConflictException(
+            'Cannot remove the last admin from the team.',
+          );
+        }
+      }
+
+      await this.teamMembersRepo.delete(memberToRemove.id);
+      return { message: 'Member removed from the team successfully' };
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException ||
+        error instanceof ConflictException
+      ) {
+        throw error;
+      }
+      throw new Error('Could not remove member from team');
+    }
+  }
 }

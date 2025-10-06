@@ -76,4 +76,15 @@ export class TeamsController {
     const userId = req.user.sub;
     return await this.teamsService.getTeamWithUsers(teamId, userId);
   }
+
+  @UseGuards(AuthGuard)
+  @Put('remove/:teamId')
+  async removeMember(
+    @Request() req: { user: { sub: string } },
+    @Param('teamId') teamId: string,
+    @Body('userId') userId: string,
+  ) {
+    const requesterId = req.user.sub;
+    return await this.teamsService.removeMember(teamId, userId, requesterId);
+  }
 }

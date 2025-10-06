@@ -9,6 +9,7 @@ import { Teams } from './entities/teams.entity';
 import { TeamMemberModule } from './teamMember/teamMember.module';
 import { TeamMember } from './entities/teamMember.entity';
 import { TeamInvite } from './entities/teamInvite';
+import { Tasks } from './entities/tasks.entity';
 
 dotenv.config();
 
@@ -17,7 +18,7 @@ dotenv.config();
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      entities: [User, Teams, TeamMember, TeamInvite],
+      entities: [User, Teams, TeamMember, TeamInvite, Tasks],
       synchronize: true,
     }),
     UsersModule,
