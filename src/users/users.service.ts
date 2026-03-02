@@ -23,13 +23,17 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { id } });
   }
 
-  //   async setCurrentRefreshTokenHash(userId: string, hash: string | null) {
-  //     await this.usersRepository.update(userId, {
-  //       currentHashedRefreshToken: hash,
-  //     });
-  //   }
+  async updateRefreshToken(id: string, hashed: string) {
+    const user = await this.findById(id);
+    if (!user) return null;
+    await this.usersRepository.update(id, { refreshTokenHashed: hashed });
+    return user;
+  }
 
-  //   async removeRefreshToken(userId: string) {
-  //     await this.setCurrentRefreshTokenHash(userId, null);
-  //   }
+  async clearRefreshToken(id: string) {
+    const user = await this.findById(id);
+    if (!user) return null;
+    await this.usersRepository.update(id, { refreshTokenHashed: null });
+    return user;
+  }
 }

@@ -164,11 +164,12 @@ export class TeamsService {
     try {
       const team = await this.teamsRepo.findOne({
         where: { id: teamId },
-        relations: ['creator'],
+        relations: ['members'],
       });
       if (!team) throw new NotFoundException('Team not found');
 
-      if (!team.creator || team.creator.id !== userId) {
+      const isAdmin = team.members.find((m) => m.userId === userId);
+      if (!isAdmin || isAdmin.role !== UserRole.ADMIN) {
         throw new UnauthorizedException(
           'You are not authorized to rename this team',
         );
@@ -316,6 +317,55 @@ export class TeamsService {
         throw error;
       }
       throw new Error('Could not remove member from team');
+    }
+  }
+
+  async assignAdmin(
+    teamId: string,
+    userId: string,
+    requesterId: string,
+  ): Promise<{ message: string }> {
+    try {
+      // First check if the team exists
+      const team = await this.teamsRepo.findOne({
+        where: { id: teamId },
+        relations: ['members'],
+      });
+      if (!team) {
+        throw new NotFoundException('Team not found');
+      }
+
+      // Check if the requester is a member and admin
+      const requesterMembership = team.members.find(
+        (member) => member.userId === requesterId,
+      );
+      if (!requesterMembership || requesterMembership.role !== UserRole.ADMIN) {
+        throw new ForbiddenException(
+          'You are not authorized to assign admin role in this team',
+        );
+      }
+
+      // Check if the user to be promoted is a member of the team
+      const memberToPromote = team.members.find(
+        (member) => member.userId === userId,
+      );
+      if (!memberToPromote) {
+        throw new NotFoundException('User is not a member of the team');
+      }
+
+      // Update the member's role to ADMIN
+      memberToPromote.role = UserRole.ADMIN;
+      await this.teamMembersRepo.save(memberToPromote);
+
+      return { message: 'Member promoted to admin successfully' };
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ForbiddenException
+      ) {
+        throw error;
+      }
+      throw new Error('Could not assign admin role');
     }
   }
 }

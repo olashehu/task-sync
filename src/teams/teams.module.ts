@@ -3,9 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Teams } from 'src/entities/teams.entity';
 import { TeamsService } from './teams.service';
 import { TeamsController } from './teams.controller';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Teams])],
+  imports: [TypeOrmModule.forFeature([Teams]), AuthModule],
   providers: [TeamsService],
   controllers: [TeamsController],
   exports: [TeamsService],
