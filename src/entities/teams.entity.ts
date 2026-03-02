@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { TeamMember } from './teamMember.entity';
+import { Tasks } from './tasks.entity';
 
 @Entity('teams')
 export class Teams {
@@ -18,14 +19,14 @@ export class Teams {
   @Column()
   name: string;
 
-  // @Column()
-  // createdBy: string;
-
   @ManyToOne(() => User, (user) => user.createdTeam, { eager: true })
   creator: User;
 
   @OneToMany(() => TeamMember, (teamMember) => teamMember.team)
-  members: TeamMember[]; // Via junction
+  members: TeamMember[];
+
+  @OneToMany(() => Tasks, (task) => task.team)
+  tasks: Tasks[];
 
   @CreateDateColumn()
   createdAt: Date;

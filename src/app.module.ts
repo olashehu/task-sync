@@ -8,6 +8,11 @@ import { TeamsModule } from './teams/teams.module';
 import { Teams } from './entities/teams.entity';
 import { TeamMemberModule } from './teamMember/teamMember.module';
 import { TeamMember } from './entities/teamMember.entity';
+import { TeamInvite } from './entities/teamInvite';
+import { Tasks } from './entities/tasks.entity';
+import { MailModule } from './mail/mail.module';
+import { Notifications } from './entities/notifications.entity';
+import { TaskModule } from './task/task.module';
 
 dotenv.config();
 
@@ -16,13 +21,15 @@ dotenv.config();
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      entities: [User, Teams, TeamMember],
+      entities: [User, Teams, TeamMember, TeamInvite, Tasks, Notifications],
       synchronize: true,
     }),
     UsersModule,
     AuthModule,
     TeamsModule,
     TeamMemberModule,
+    MailModule,
+    TaskModule,
   ],
   controllers: [],
   providers: [],
